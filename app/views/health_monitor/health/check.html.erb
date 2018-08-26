@@ -52,9 +52,6 @@
   .statuses .message { color: #666; }
   .statuses .timestamp { width: 130px; color: #999; }
   .statuses .status-error .state { color: red; }
-
-  .powered { text-align: center; margin-top: 10px; color: #aaa; }
-  .powered a { color: #666; }
   </style>
 </head>
 
@@ -65,15 +62,14 @@
       <% @statuses[:results].each do |status| %>
       <div class="status status-<%= status[:status].downcase %>">
         <div class="status-heading">
-          <span class="name"><%= status[:name]  %></span>
-          <span class="state"><%= status[:status] %></span>
+          <%= link_to status[:url] do %>
+            <span class="name"><%= status[:name]  %></span>
+            <span class="state"><%= status[:status] %></span>
+          <% end %>
         </div>
         <div class="message"><%= status[:message] %></div>
       </div>
       <% end %>
-    </div>
-    <div class="powered">
-      Powered by <a href="https://github.com/lbeder/health-monitor-rails" target="_blank">health-monitor-rails</a>
     </div>
   </div>
 </body>

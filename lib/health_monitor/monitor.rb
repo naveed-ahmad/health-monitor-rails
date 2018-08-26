@@ -18,8 +18,9 @@ module HealthMonitor
 
   def check(request: nil, params: {})
     providers = configuration.providers
+    
     if params[:providers].present?
-      providers = providers.select { |provider| params[:providers].include?(provider.provider_name.downcase) }
+      providers = providers.select { |provider| params[:providers].include?(provider[:class].provider_name.downcase) }
     end
 
     results = providers.map { |provider| provider_result(provider, request) }
@@ -34,22 +35,25 @@ module HealthMonitor
   private
 
   def provider_result(provider, request)
-    monitor = provider.new(request: request)
-    monitor.check!
-
-    {
-      name: provider.provider_name,
+    result = {
+      name: provider[:class].provider_name,
       message: '',
-      status: STATUSES[:ok]
+      url: provider[:url]
     }
-  rescue StandardError => e
-    configuration.error_callback.call(e) if configuration.error_callback
 
-    {
-      name: provider.provider_name,
-      message: e.message,
-      status: STATUSES[:error]
-    }
+    begin
+      monitor = provider[:class].new(request: request)
+      monitor.check!
+
+      result[:status] = STATUSES[:ok]
+    rescue StandardError => e
+      configuration.error_callback.call(e) if configuration.error_callback
+
+      result[:message] = e.message
+      result[:status]  = STATUSES[:error]
+    end
+    
+    result
   end
 end
 
