@@ -61,6 +61,8 @@ module HealthMonitor
       end
 
       def check_latency!
+        return unless configuration
+        
         configuration.queues.each do |queue, config|
           latency = queue(queue).latency
 
@@ -69,6 +71,8 @@ module HealthMonitor
       end
 
       def check_queue_size!
+        return unless configuration
+  
         configuration.queues.each do |queue, config|
           size = queue(queue).size
           raise "queue '#{queue}': size #{size} is greater than #{config[:queue_size]}" if size > config[:queue_size]
